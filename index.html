@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Avenlo · Software Design Concept</title>
+<style>/* Avenlo 交互设计规格 V2.4 · 实拍手势图 */
+/* ========== Design tokens —— 对齐队长概念海报（暖白 / 马卡龙 / 蓝波形） ========== */
+:root {
+  --paper: #FBF9F5;        /* 暖白纸感背景 */
+  --card: #FFFFFF;
+  --ink: #2B2B33;          /* 正文炭黑 */
+  --ink-2: #6E6C78;        /* 次级 */
+  --ink-3: #A09E97;        /* 弱化 */
+  --line: #EAE5DB;
+  --line-2: #D8D2C4;
+  --blue: #BE693F;         /* 主色：陶土棕（对齐概念海报暖棕调） */
+  --blue-soft: #F7EBE2;
+  --gold: #C08A3E;         /* 戒指传感器 / 轻点缀 */
+  --gold-soft: #F7EEDD;
+  --ok: #4E8D6E;
+  --err: #B55D57;
+  /* 马卡龙标签体系（与海报一致） */
+  --mac-cyan-bg: #DCEDE6;  --mac-cyan-tx: #3E7265;
+  --mac-yellow-bg: #F5EAC8; --mac-yellow-tx: #8A6D2F;
+  --mac-purple-bg: #E7E1F2; --mac-purple-tx: #6B5CA5;
+  --mac-pink-bg: #F7E0DA;  --mac-pink-tx: #A5645C;
+  --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "HarmonyOS Sans SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --serif: "Noto Serif SC", "Songti SC", "SimSun", serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.8; -webkit-font-smoothing: antialiased; }
+::selection { background: var(--blue-soft); color: var(--ink); }
+a { color: var(--blue); text-decoration: none; }
+
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 32px; }
+.section { padding: 84px 0; }
+.eyebrow {
+  font-size: 13px; letter-spacing: .35em; color: var(--blue);
+  display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
+}
+.eyebrow::after { content: ""; flex: 1; height: 1px; background: var(--line-2); }
+h2 { font-family: var(--serif); font-size: clamp(26px, 3.4vw, 36px); font-weight: 700; letter-spacing: .02em; margin-bottom: 14px; line-height: 1.4; }
+.lede { color: var(--ink-2); font-size: 17px; max-width: 720px; margin-bottom: 44px; }
+.lede b, .spec-note b { color: var(--ink); font-weight: 600; }
+
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 28px; box-shadow: 0 1px 2px rgba(60,50,30,.04); }
+.grid { display: grid; gap: 20px; }
+.g2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+
+table.spec { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+table.spec th {
+  font-size: 12px; letter-spacing: .12em; color: var(--ink-3); text-align: left; font-weight: 600;
+  padding: 10px 14px; border-bottom: 1.5px solid var(--line-2); white-space: nowrap;
+}
+table.spec td { padding: 13px 14px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-2); line-height: 1.65; }
+table.spec tr:last-child td { border-bottom: none; }
+table.spec td:first-child { color: var(--ink); font-weight: 500; white-space: nowrap; }
+
+.tag { display: inline-block; padding: 2px 12px; border-radius: 99px; font-size: 12px; margin: 2px 4px 2px 0; white-space: nowrap; }
+.tag.cyan { background: var(--mac-cyan-bg); color: var(--mac-cyan-tx); }
+.tag.yellow { background: var(--mac-yellow-bg); color: var(--mac-yellow-tx); }
+.tag.purple { background: var(--mac-purple-bg); color: var(--mac-purple-tx); }
+.tag.pink { background: var(--mac-pink-bg); color: var(--mac-pink-tx); }
+
+pre.code {
+  font-family: var(--mono); font-size: 13px; line-height: 1.7;
+  background: #F5F2EA; border: 1px solid var(--line); border-radius: 12px;
+  padding: 20px 22px; overflow-x: auto; color: #4A473F;
+}
+pre.code .k { color: var(--blue); }
+pre.code .s { color: var(--ok); }
+pre.code .c { color: var(--ink-3); }
+
+footer { border-top: 1px solid var(--line-2); padding: 40px 0 64px; color: var(--ink-3); font-size: 13.5px; background: var(--card); }
+
+@media (max-width: 640px) { .wrap { padding: 0 18px; } .section { padding: 56px 0; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 4px; }
+
+
+
+#hero { padding: 88px 0 72px; position: relative; overflow: hidden; }
+#hero .halo { position: absolute; top: -220px; right: -160px; width: 620px; height: 620px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(220,237,230,.55) 0%, rgba(231,225,242,.35) 45%, transparent 70%); pointer-events: none; }
+.hero-meta { font-size: 13.5px; color: var(--ink-3); margin-bottom: 30px; display: flex; gap: 20px; flex-wrap: wrap; letter-spacing: .04em; }
+.hero-meta b { color: var(--ink); font-weight: 600; }
+.hero-meta .dot { color: var(--line-2); }
+#hero h1 { font-family: var(--serif); font-size: clamp(32px, 5vw, 54px); font-weight: 700; line-height: 1.35; letter-spacing: .02em; max-width: 800px; }
+#hero h1 em { font-style: normal; color: var(--blue); }
+.hero-sub { color: var(--ink-2); font-size: 17px; max-width: 660px; margin: 26px 0 40px; }
+.deliver { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; max-width: 900px; }
+.deliver a { display: block; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--card);
+  color: var(--ink); cursor: pointer; transition: border-color .2s, box-shadow .2s, transform .2s; }
+.deliver a:hover { border-color: var(--blue); box-shadow: 0 6px 18px rgba(62,124,177,.12); transform: translateY(-2px); }
+.deliver .no { font-size: 12px; color: var(--blue); letter-spacing: .18em; display: block; margin-bottom: 6px; }
+.deliver .t { font-weight: 600; font-size: 15px; display: block; }
+.deliver .d { font-size: 12.5px; color: var(--ink-3); display: block; margin-top: 3px; }
+
+
+
+.demo-stage { display: grid; grid-template-columns: 1.15fr .85fr; gap: 24px; align-items: stretch; }
+@media (max-width: 880px) { .demo-stage { grid-template-columns: 1fr; } }
+.demo-ring {
+  position: relative; min-height: 430px; border-radius: 18px; cursor: pointer;
+  background: radial-gradient(circle at 50% 40%, #FFFFFF 0%, var(--paper) 75%);
+  border: 1px solid var(--line); overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  user-select: none; -webkit-tap-highlight-color: transparent;
+}
+.ring-svg { width: 200px; height: 200px; }
+.ring-svg .band { fill: none; stroke: #C9C4B8; stroke-width: 17; }
+.ring-svg .band-hi { fill: none; stroke: #E5E0D4; stroke-width: 17; stroke-dasharray: 40 999; transform: rotate(-38deg); transform-origin: 50% 50%; }
+.ring-svg .sensor { fill: var(--gold); }
+.pulse { position: absolute; left: 50%; top: 40%; width: 90px; height: 90px; border-radius: 50%;
+  border: 2px solid var(--blue); opacity: 0; transform: translate(-50%, -50%); pointer-events: none; }
+.pulse.go { animation: pulse 1.6s ease-out forwards; }
+@keyframes pulse { 0% { opacity: .7; width: 90px; height: 90px; } 100% { opacity: 0; width: 430px; height: 430px; } }
+.wave { position: absolute; bottom: 68px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 4px; align-items: flex-end; height: 44px; }
+.wave span { width: 3.5px; border-radius: 2px; background: var(--blue); height: 5px; opacity: .55; }
+.wave.on span { animation: bar .9s ease-in-out infinite alternate; opacity: 1; }
+@keyframes bar { from { height: 5px; } to { height: var(--h, 30px); } }
+.speech { position: absolute; bottom: 20px; width: 100%; text-align: center; font-size: 15.5px;
+  color: var(--ink); min-height: 28px; }
+.speech .cur { display: inline-block; width: 2px; height: 1em; background: var(--blue); vertical-align: -0.15em; margin-left: 2px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.demo-status { position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+  font-size: 12.5px; letter-spacing: .12em; color: var(--ink-3); white-space: nowrap;
+  padding: 6px 18px; border: 1px solid var(--line); border-radius: 99px; background: rgba(255,255,255,.85);
+  transition: color .3s, border-color .3s; }
+.demo-status.rec { color: var(--blue); border-color: rgba(62,124,177,.45); }
+.demo-status.proc { color: var(--mac-purple-tx); border-color: var(--mac-purple-bg); }
+.demo-status.done { color: var(--ok); border-color: rgba(78,141,110,.4); }
+.demo-hint { position: absolute; bottom: 128px; width: 100%; text-align: center; font-size: 13.5px; color: var(--ink-3); transition: opacity .4s; }
+.demo-hint kbd { font-family: var(--mono); font-size: 11.5px; border: 1px solid var(--line-2); border-bottom-width: 2px;
+  border-radius: 6px; padding: 1px 9px; color: var(--ink-2); background: var(--card); }
+.demo-side { display: flex; flex-direction: column; gap: 16px; }
+.script { list-style: none; font-size: 14px; color: var(--ink-3); display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.script li { display: flex; gap: 12px; align-items: baseline; transition: color .3s; padding: 2px 0; }
+.script li .t { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); min-width: 44px; }
+.script li.on { color: var(--ink); }
+.script li.on .t { color: var(--blue); }
+.script li.done { color: var(--ink-2); }
+.idea-mini { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px 22px;
+  opacity: .3; transform: translateY(8px) scale(.97); transition: all .5s cubic-bezier(.2,.8,.2,1); }
+.idea-mini.show { opacity: 1; transform: none; box-shadow: 0 8px 24px rgba(60,50,30,.08); }
+.idea-mini .lbl { font-size: 11.5px; letter-spacing: .18em; color: var(--gold); display: block; margin-bottom: 8px; }
+.idea-mini h4 { font-family: var(--serif); font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.idea-mini p { font-size: 13.5px; color: var(--ink-2); line-height: 1.7; }
+
+
+
+.gesture-fig { text-align: center; }
+.gesture-fig svg { width: 100%; max-width: 420px; }
+.spec-note { font-size: 13.5px; color: var(--ink-3); margin-top: 12px; line-height: 1.7; }
+.haptic-row .pat { display: inline-flex; gap: 5px; align-items: center; height: 20px; vertical-align: middle; }
+.haptic-row .pat i { display: block; background: var(--blue); border-radius: 2px; height: 100%; }
+.haptic-row .pat i.soft { height: 55%; opacity: .75; }
+.haptic-row .pat i.far { opacity: 0; width: 8px; background: none; }
+.sm-wrap { overflow-x: auto; padding: 10px 4px 4px; }
+.sm-wrap svg { min-width: 760px; width: 100%; height: auto; display: block; }
+.sm-state { fill: var(--card); stroke: var(--line-2); }
+.sm-state.on { stroke: var(--blue); }
+.sm-txt { fill: var(--ink); font-size: 14px; font-family: var(--sans); font-weight: 600; }
+.sm-sub { fill: var(--ink-3); font-size: 10.5px; font-family: var(--sans); letter-spacing: .04em; }
+.sm-edge { stroke: #9DB4CB; stroke-width: 1.4; fill: none; marker-end: url(#arrow); }
+.sm-edge.err { stroke: var(--err); opacity: .55; stroke-dasharray: 5 4; }
+.sm-elbl { fill: var(--ink-2); font-size: 11px; font-family: var(--sans); }
+.sm-elbl.err { fill: var(--err); }
+
+
+
+.principles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 26px; }
+.principle { border-left: 3px solid var(--blue); padding: 12px 18px; background: var(--paper); border-radius: 0 12px 12px 0; }
+.principle b { display: block; font-size: 15px; margin-bottom: 2px; }
+.principle span { font-size: 13px; color: var(--ink-3); }
+.tl-bar { position: relative; height: 4px; background: var(--line); border-radius: 2px; margin: 34px 8px 44px; }
+.tl-bar .fill { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--blue); border-radius: 2px; transition: width 6s linear; }
+.tl-steps { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+@media (max-width: 900px) { .tl-steps { grid-template-columns: repeat(4, 1fr); } }
+.tl-step { position: relative; padding-top: 6px; }
+.tl-step .dot { position: absolute; top: -44px; left: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--card); border: 2px solid #B9CFE2; }
+.tl-step.hot .dot { background: var(--blue); border-color: var(--blue); }
+.tl-step .tt { font-family: var(--mono); font-size: 11px; color: var(--blue); }
+.tl-step .tx { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+.tl-step .tx b { color: var(--ink); }
+.flow-wrap { overflow-x: auto; padding: 8px 2px; }
+.flow-wrap svg { min-width: 820px; width: 100%; display: block; }
+.fl-node { fill: var(--card); stroke: var(--line-2); }
+.fl-node.hw { stroke: var(--gold); }
+.fl-node.ai { stroke: var(--mac-purple-tx); }
+.fl-t { fill: var(--ink); font-size: 13.5px; font-family: var(--sans); font-weight: 600; }
+.fl-s { fill: var(--ink-3); font-size: 10.5px; font-family: var(--sans); }
+.fl-e { stroke: #9DB4CB; stroke-width: 1.4; fill: none; marker-end: url(#arrow2); }
+.fl-lane { fill: none; stroke: var(--line-2); stroke-width: 1; stroke-dasharray: 3 5; }
+.fl-lane-t { fill: var(--ink-3); font-size: 11px; font-family: var(--sans); letter-spacing: .2em; }
+
+
+
+.screens { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 28px; }
+.screen-block { display: flex; flex-direction: column; gap: 12px; }
+.phone { width: 100%; max-width: 268px; margin: 0 auto; aspect-ratio: 9/19.4;
+  background: #FFF; border: 1px solid var(--line-2); border-radius: 36px; padding: 8px;
+  box-shadow: 0 12px 32px rgba(60,50,30,.10); }
+.scr { width: 100%; height: 100%; border-radius: 28px; overflow: hidden;
+  background: #FDFCFA; color: var(--ink); display: flex; flex-direction: column;
+  font-size: 11px; position: relative; }
+.scr .sbar { display: flex; justify-content: space-between; padding: 8px 16px 2px; font-family: var(--mono); font-size: 9px; color: var(--ink-3); }
+.notch { width: 72px; height: 15px; background: #FFF; border: 1px solid var(--line); border-bottom: none; border-radius: 8px 8px 0 0; margin: 0 auto; }
+.scr .body { flex: 1; overflow: hidden; padding: 6px 14px 10px; display: flex; flex-direction: column; gap: 8px; }
+.scr h5 { font-size: 16px; font-weight: 700; }
+.scr .nav { display: flex; align-items: center; justify-content: space-between; }
+.scr .nav .plus { width: 22px; height: 22px; border-radius: 8px; background: var(--blue-soft); display: flex; align-items: center; justify-content: center; }
+.scr .sub { font-size: 9.5px; color: var(--ink-3); }
+/* 灵感列表（对齐海报图一） */
+.rowi { display: flex; align-items: center; gap: 10px; background: #FFF; border: 1px solid var(--line); border-radius: 14px; padding: 9px 11px; }
+.rowi .ic { width: 30px; height: 30px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; }
+.rowi .tx { flex: 1; min-width: 0; }
+.rowi .tx b { font-size: 12px; display: block; }
+.rowi .tx span { font-size: 9px; color: var(--ink-3); }
+.rowi .dur { font-family: var(--mono); font-size: 9px; color: var(--ink-3); }
+.ic.cyan { background: var(--mac-cyan-bg); } .ic.yellow { background: var(--mac-yellow-bg); }
+.ic.purple { background: var(--mac-purple-bg); } .ic.pink { background: var(--mac-pink-bg); }
+.summ { background: var(--blue-soft); border-radius: 14px; padding: 9px 12px; }
+.summ .lb { font-size: 8.5px; letter-spacing: .16em; color: var(--blue); display: block; margin-bottom: 3px; }
+.summ p { font-size: 10px; color: var(--ink-2); line-height: 1.6; }
+.summ p b { color: var(--ink); }
+/* tabbar with SVG icons */
+.tabbar { display: flex; justify-content: space-around; padding: 6px 6px 8px; border-top: 1px solid var(--line); background: #FFF; }
+.tabbar .t { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #B8B4AA; }
+.tabbar .t svg { width: 16px; height: 16px; }
+.tabbar .t span { font-size: 8.5px; }
+.tabbar .t.on { color: var(--blue); }
+.tabbar .t.on span { font-weight: 600; }
+/* 详情页（海报图一右侧） */
+.wavebar { background: #FFF; border: 1px solid var(--line); border-radius: 14px; padding: 9px 11px; }
+.wavebar .top { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.playbtn { width: 24px; height: 24px; border-radius: 50%; background: var(--blue); color: #FFF; display: flex; align-items: center; justify-content: center; flex: none; }
+.wavebar .bars { display: flex; gap: 2.5px; align-items: center; flex: 1; height: 22px; overflow: hidden; }
+.wavebar .bars i { width: 2.5px; background: #D9A98F; border-radius: 2px; }
+.wavebar .top .tm { font-family: var(--mono); font-size: 8.5px; color: var(--ink-3); }
+.tabs { display: flex; gap: 4px; }
+.tabs span { font-size: 10px; padding: 4px 9px; border-radius: 99px; color: var(--ink-2); white-space: nowrap; }
+.tabs span.on { background: var(--blue); color: #FFF; font-weight: 600; }
+.trans { background: #FFF; border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; font-size: 10px; color: var(--ink-2); line-height: 1.8; }
+.trans .lb { font-size: 8px; letter-spacing: .16em; color: var(--ink-3); display: block; margin-bottom: 4px; }
+/* 灵感延展页（海报图二） */
+.hero-img { border-radius: 14px; height: 84px; background: linear-gradient(135deg, #DCEDE6 0%, #F5EAC8 60%, #F7E0DA 100%); position: relative; overflow: hidden; }
+.hero-img .leaf { position: absolute; right: 14px; bottom: 0; width: 60px; height: 60px; border-radius: 50% 50% 0 0; background: radial-gradient(circle at 50% 100%, #FFF 0%, #DCEDE6 70%); box-shadow: -14px -6px 0 -8px #CBDFD5, -26px -14px 0 -10px #E6F0EA; }
+.blk { background: #FFF; border: 1px solid var(--line); border-radius: 14px; padding: 9px 12px; }
+.blk .hd { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; margin-bottom: 4px; }
+.blk .hd svg { width: 12px; height: 12px; }
+.blk p { font-size: 10px; color: var(--ink-2); line-height: 1.7; }
+.blk ul { list-style: none; }
+.blk ul li { font-size: 10px; color: var(--ink-2); line-height: 1.8; padding-left: 12px; position: relative; }
+.blk ul li::before { content: ""; position: absolute; left: 0; top: .62em; width: 5px; height: 5px; border-radius: 50%; background: var(--mac-cyan-bg); border: 1px solid var(--mac-cyan-tx); }
+.hashtags { font-size: 10px; color: var(--blue); line-height: 1.8; }
+.actionbar { display: flex; justify-content: space-around; padding: 7px 0 4px; border-top: 1px solid var(--line); background: #FFF; margin-top: auto; }
+.actionbar svg { width: 15px; height: 15px; color: var(--ink-2); }
+/* 捕捉中锁屏 */
+.scr.dark { background: #2B3140; color: #EDF0F6; }
+.scr.dark .sbar { color: #8B93A8; }
+.scr.dark .notch { background: #2B3140; border-color: #3A4155; }
+.live-banner { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); border-radius: 14px; padding: 10px 12px; }
+.live-banner .hd { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+.rec-dot { width: 7px; height: 7px; border-radius: 50%; background: #F0B45C; box-shadow: 0 0 8px #F0B45C; animation: blink 1.2s infinite; }
+.live-banner .hd b { font-size: 11px; color: #F0B45C; }
+.live-banner .hd span { font-family: var(--mono); font-size: 8px; color: #8B93A8; margin-left: auto; }
+.live-text { font-size: 11px; color: #D5DAE6; line-height: 1.85; min-height: 66px; }
+.live-text .cur { display: inline-block; width: 1.5px; height: .95em; background: #F0B45C; vertical-align: -.12em; animation: blink 1s steps(1) infinite; }
+.hint-lock { text-align: center; color: #8B93A8; font-size: 9.5px; margin-top: auto; padding: 8px 0; }
+/* 注解 */
+.anno { counter-reset: a; }
+.anno li { list-style: none; font-size: 13.5px; color: var(--ink-2); padding-left: 30px; position: relative; margin-bottom: 8px; line-height: 1.65; }
+.anno li::before { counter-increment: a; content: counter(a); position: absolute; left: 0; top: 3px; width: 20px; height: 20px; border-radius: 50%;
+  border: 1px solid var(--blue); color: var(--blue); font-family: var(--mono); font-size: 10.5px;
+  display: flex; align-items: center; justify-content: center; }
+.anno li b { color: var(--ink); }
+.screen-title { font-size: 12px; letter-spacing: .16em; color: var(--blue); margin-top: 4px; }</style>
+</head>
+<body>
+<header id="hero"><style>
+#hero { padding: 88px 0 72px; position: relative; overflow: hidden; }
+#hero .halo { position: absolute; top: -220px; right: -160px; width: 620px; height: 620px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(220,237,230,.55) 0%, rgba(231,225,242,.35) 45%, transparent 70%); pointer-events: none; }
+.hero-meta { font-size: 13.5px; color: var(--ink-3); margin-bottom: 30px; display: flex; gap: 20px; flex-wrap: wrap; letter-spacing: .04em; }
+.hero-meta b { color: var(--ink); font-weight: 600; }
+.hero-meta .dot { color: var(--line-2); }
+#hero h1 { font-family: var(--serif); font-size: clamp(32px, 5vw, 54px); font-weight: 700; line-height: 1.35; letter-spacing: .02em; max-width: 800px; }
+#hero h1 em { font-style: normal; color: var(--blue); }
+.hero-sub { color: var(--ink-2); font-size: 17px; max-width: 660px; margin: 26px 0 40px; }
+.deliver { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; max-width: 900px; }
+.deliver a { display: block; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--card);
+  color: var(--ink); cursor: pointer; transition: border-color .2s, box-shadow .2s, transform .2s; }
+.deliver a:hover { border-color: var(--blue); box-shadow: 0 6px 18px rgba(62,124,177,.12); transform: translateY(-2px); }
+.deliver .no { font-size: 12px; color: var(--blue); letter-spacing: .18em; display: block; margin-bottom: 6px; }
+.deliver .t { font-weight: 600; font-size: 15px; display: block; }
+.deliver .d { font-size: 12.5px; color: var(--ink-3); display: block; margin-top: 3px; }
+</style>
+<div class="wrap">
+  <div class="halo"></div>
+  <div class="hero-meta">
+    <span>Anker 黑客松 · 智能录音赛道</span><span class="dot">/</span>
+    <span>Avenlo</span><span class="dot">/</span>
+    <span>负责人 <b>阿颖 · UI/UX</b></span><span class="dot">/</span>
+    <span>Software Design Concept</span>
+  </div>
+  <h1><em>Capture ideas</em><br>without breaking your flow.</h1>
+  <p class="hero-sub">
+    <b>Pinch to Capture.</b> Avenlo is an <b>AI-powered smart ring</b> designed for creative professionals.
+    用一个自然的轻捏完成灵感捕捉，在记录当下不看屏幕；之后再由 AI 把碎片语音整理成清晰、可继续发展的想法。
+  </p>
+  <nav class="deliver">
+    <a href="#demo"><span class="no">00</span><span class="t">体验核心交互</span><span class="d">Pinch to Capture</span></a>
+    <a href="#pinch"><span class="no">01</span><span class="t">Pinch to Capture</span><span class="d">轻捏 · 录音 · 震动反馈</span></a>
+    <a href="#flow"><span class="no">02</span><span class="t">用户流程</span><span class="d">Capture → Organize → Explore</span></a>
+    <a href="#ui"><span class="no">03</span><span class="t">App 界面原型</span><span class="d">AI Organize · Related Ideas · Explore</span></a>
+  </nav>
+</div></header>
+<section class="section" id="demo" style="background:var(--card); border-top:1px solid var(--line); border-bottom:1px solid var(--line);"><style>
+.demo-stage { display: grid; grid-template-columns: 1.15fr .85fr; gap: 24px; align-items: stretch; }
+@media (max-width: 880px) { .demo-stage { grid-template-columns: 1fr; } }
+.demo-ring {
+  position: relative; min-height: 430px; border-radius: 18px; cursor: pointer;
+  background: radial-gradient(circle at 50% 40%, #FFFFFF 0%, var(--paper) 75%);
+  border: 1px solid var(--line); overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  user-select: none; -webkit-tap-highlight-color: transparent;
+}
+.ring-svg { width: 200px; height: 200px; }
+.ring-svg .band { fill: none; stroke: #C9C4B8; stroke-width: 17; }
+.ring-svg .band-hi { fill: none; stroke: #E5E0D4; stroke-width: 17; stroke-dasharray: 40 999; transform: rotate(-38deg); transform-origin: 50% 50%; }
+.ring-svg .sensor { fill: var(--gold); }
+.pulse { position: absolute; left: 50%; top: 40%; width: 90px; height: 90px; border-radius: 50%;
+  border: 2px solid var(--blue); opacity: 0; transform: translate(-50%, -50%); pointer-events: none; }
+.pulse.go { animation: pulse 1.6s ease-out forwards; }
+@keyframes pulse { 0% { opacity: .7; width: 90px; height: 90px; } 100% { opacity: 0; width: 430px; height: 430px; } }
+.wave { position: absolute; bottom: 68px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 4px; align-items: flex-end; height: 44px; }
+.wave span { width: 3.5px; border-radius: 2px; background: var(--blue); height: 5px; opacity: .55; }
+.wave.on span { animation: bar .9s ease-in-out infinite alternate; opacity: 1; }
+@keyframes bar { from { height: 5px; } to { height: var(--h, 30px); } }
+.speech { position: absolute; bottom: 20px; width: 100%; text-align: center; font-size: 15.5px;
+  color: var(--ink); min-height: 28px; }
+.speech .cur { display: inline-block; width: 2px; height: 1em; background: var(--blue); vertical-align: -0.15em; margin-left: 2px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.demo-status { position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+  font-size: 12.5px; letter-spacing: .12em; color: var(--ink-3); white-space: nowrap;
+  padding: 6px 18px; border: 1px solid var(--line); border-radius: 99px; background: rgba(255,255,255,.85);
+  transition: color .3s, border-color .3s; }
+.demo-status.rec { color: var(--blue); border-color: rgba(62,124,177,.45); }
+.demo-status.proc { color: var(--mac-purple-tx); border-color: var(--mac-purple-bg); }
+.demo-status.done { color: var(--ok); border-color: rgba(78,141,110,.4); }
+.demo-hint { position: absolute; bottom: 128px; width: 100%; text-align: center; font-size: 13.5px; color: var(--ink-3); transition: opacity .4s; }
+.demo-hint kbd { font-family: var(--mono); font-size: 11.5px; border: 1px solid var(--line-2); border-bottom-width: 2px;
+  border-radius: 6px; padding: 1px 9px; color: var(--ink-2); background: var(--card); }
+.demo-side { display: flex; flex-direction: column; gap: 16px; }
+.script { list-style: none; font-size: 14px; color: var(--ink-3); display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.script li { display: flex; gap: 12px; align-items: baseline; transition: color .3s; padding: 2px 0; }
+.script li .t { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); min-width: 44px; }
+.script li.on { color: var(--ink); }
+.script li.on .t { color: var(--blue); }
+.script li.done { color: var(--ink-2); }
+.idea-mini { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px 22px;
+  opacity: .3; transform: translateY(8px) scale(.97); transition: all .5s cubic-bezier(.2,.8,.2,1); }
+.idea-mini.show { opacity: 1; transform: none; box-shadow: 0 8px 24px rgba(60,50,30,.08); }
+.idea-mini .lbl { font-size: 11.5px; letter-spacing: .18em; color: var(--gold); display: block; margin-bottom: 8px; }
+.idea-mini h4 { font-family: var(--serif); font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.idea-mini p { font-size: 13.5px; color: var(--ink-2); line-height: 1.7; }
+</style>
+<div class="wrap">
+  <div class="eyebrow">00 · 核心交互</div>
+  <h2>Pinch to Capture</h2>
+  <p class="lede">点击左侧戒指（或按空格键）模拟轻捏：第一次轻捏开始记录，震动确认；说出想法后再次轻捏结束并保存。捕捉阶段无需查看手机。</p>
+
+  <div class="demo-stage">
+    <div class="demo-ring" id="demoRing" tabindex="0" role="button" aria-label="点击模拟拇指轻捏">
+      <div class="demo-status" id="demoStatus">待机 · 等待轻捏</div>
+      <svg class="ring-svg" viewBox="0 0 210 210" aria-hidden="true">
+        <circle class="band" cx="105" cy="105" r="82"/>
+        <circle class="band-hi" cx="105" cy="105" r="82"/>
+        <circle class="sensor" cx="105" cy="23" r="9"/>
+      </svg>
+      <div class="demo-hint" id="demoHint"><kbd>轻点戒指</kbd> 或按住 <kbd>空格</kbd> 模拟 Pinch</div>
+      <div class="wave" id="demoWave" aria-hidden="true"></div>
+      <div class="speech" id="demoSpeech"></div>
+    </div>
+
+    <div class="demo-side">
+      <div class="panel" style="flex:1; padding: 22px;">
+        <div style="font-size:12px; letter-spacing:.2em; color:var(--ink-3); margin-bottom: 14px;">交互时序</div>
+        <ol class="script" id="demoScript">
+          <li data-step="pinch"><span class="t">00.0s</span>灵感出现 · 拇指轻捏戒指</li>
+          <li data-step="haptic"><span class="t">00.3s</span>单次轻震 ·「已听到」</li>
+          <li data-step="speak"><span class="t">01.0s</span>直接说出想法 · 手不离笔</li>
+          <li data-step="end"><span class="t">09.0s</span>再次轻捏 · 双震动「已存下」</li>
+          <li data-step="ai"><span class="t">之后</span>语音转写 → AI 整理成 Idea Card</li>
+        </ol>
+      </div>
+      <div class="idea-mini" id="ideaMini">
+        <span class="lbl">IDEA CARD · AI ORGANIZED</span>
+        <h4>半透明材料应用</h4>
+        <p>「这里是不是可以换成半透明材料？」— 探索外壳的半透明方案，让内部结构成为设计语言的一部分。</p>
+        <div style="margin-top:10px;"><span class="tag yellow">#材料</span><span class="tag cyan">#外壳</span><span class="tag purple">#概念</span></div>
+      </div>
+    </div>
+  </div>
+</div></section>
+<section class="section" id="pinch"><style>
+.gesture-fig { text-align: center; }
+.gesture-fig svg { width: 100%; max-width: 420px; }
+.spec-note { font-size: 13.5px; color: var(--ink-3); margin-top: 12px; line-height: 1.7; }
+.haptic-row .pat { display: inline-flex; gap: 5px; align-items: center; height: 20px; vertical-align: middle; }
+.haptic-row .pat i { display: block; background: var(--blue); border-radius: 2px; height: 100%; }
+.haptic-row .pat i.soft { height: 55%; opacity: .75; }
+.haptic-row .pat i.far { opacity: 0; width: 8px; background: none; }
+.sm-wrap { overflow-x: auto; padding: 10px 4px 4px; }
+.sm-wrap svg { min-width: 760px; width: 100%; height: auto; display: block; }
+.sm-state { fill: var(--card); stroke: var(--line-2); }
+.sm-state.on { stroke: var(--blue); }
+.sm-txt { fill: var(--ink); font-size: 14px; font-family: var(--sans); font-weight: 600; }
+.sm-sub { fill: var(--ink-3); font-size: 10.5px; font-family: var(--sans); letter-spacing: .04em; }
+.sm-edge { stroke: #9DB4CB; stroke-width: 1.4; fill: none; marker-end: url(#arrow); }
+.sm-edge.err { stroke: var(--err); opacity: .55; stroke-dasharray: 5 4; }
+.sm-elbl { fill: var(--ink-2); font-size: 11px; font-family: var(--sans); }
+.sm-elbl.err { fill: var(--err); }
+</style>
+<div class="wrap">
+  <div class="eyebrow">01 · Pinch to Capture</div>
+  <h2>一个自然手势，完成开始与结束</h2>
+  <p class="lede">Avenlo 戴在食指，拇指轻捏即可触发。第一次轻捏开始录音并短震确认；第二次轻捏结束并双短震确认。交互目标是：<b>捕捉时不看屏幕，尽量不切换注意力</b>。</p>
+
+  <div class="grid g2" style="margin-bottom: 20px;">
+    <div class="panel gesture-fig">
+      <div style="font-size:12px; letter-spacing:.2em; color:var(--ink-3); margin-bottom: 16px;">图 1 · 手势定义</div>
+      <img src="gesture-photo.png" alt="拇指轻捏食指上 Anker 戒指传感区的实拍演示" style="width: 100%; max-width: 420px; border-radius: 14px; display: block; margin: 0 auto;">
+      <p class="spec-note"><b>Thumb Pinch</b> — 拇指指腹轻捏食指侧面的传感区。单手可完成、天然隐蔽，在握笔、打字、抱臂等日常手部姿态中都容易触发，且不与常用手势冲突。</p>
+    </div>
+
+    <div class="panel">
+      <div style="font-size:12px; letter-spacing:.2em; color:var(--ink-3); margin-bottom: 16px;">图 2 · 触发参数</div>
+      <table class="spec">
+        <tr><th>参数</th><th>取值</th><th>设计意图</th></tr>
+        <tr><td>捏合保持时长</td><td><span class="tag cyan">≥ 300 ms</span></td><td>过滤误触：整理头发、拿杯子等瞬时接触不触发</td></tr>
+        <tr><td>触发力度</td><td>中轻力度窗口</td><td>指腹「搭上」即可，无需刻意用力</td></tr>
+        <tr><td>开始确认</td><td>轻震 1 次</td><td>不看屏幕也知道「已经在录了」</td></tr>
+        <tr><td>结束方式</td><td>再次轻捏</td><td>用与开始一致的手势主动结束，逻辑清晰、状态明确</td></tr>
+        <tr><td>单条上限</td><td>60 秒</td><td>灵感是短念头而非会议，超时收尾并震动提示</td></tr>
+        <tr><td>误触撤销</td><td>结束后 3 秒内<br>快速双捏</td><td>「删掉刚才那条」——不需要掏手机</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-bottom: 20px;">
+    <div class="panel">
+      <div style="font-size:12px; letter-spacing:.2em; color:var(--ink-3); margin-bottom: 16px;">图 3 · 震动语言</div>
+      <table class="spec">
+        <tr><th>含义</th><th>模式</th><th>用户心智</th></tr>
+        <tr class="haptic-row"><td>开始录音</td><td><span class="pat"><i class="soft" style="width:14px"></i></span></td><td>「听到了，请讲」</td></tr>
+        <tr class="haptic-row"><td>结束并保存</td><td><span class="pat"><i style="width:9px"></i><i class="far"></i><i style="width:9px"></i></span></td><td>「存好了，继续画」</td></tr>
+        <tr class="haptic-row"><td>撤销成功</td><td><span class="pat"><i class="soft" style="width:8px"></i><i class="far"></i><i class="soft" style="width:8px"></i><i class="far"></i><i class="soft" style="width:8px"></i></span></td><td>「那条删掉了」</td></tr>
+        <tr class="haptic-row"><td>存储失败</td><td><span class="pat"><i style="width:5px"></i><i class="far"></i><i style="width:5px"></i><i class="far"></i><i style="width:5px"></i></span></td><td>急促三连 = 出问题，需要看 App</td></tr>
+        <tr class="haptic-row"><td>电量低</td><td><span class="pat"><i style="width:26px"></i></span></td><td>推迟到下次录音开始时提醒，永不打断当前状态</td></tr>
+      </table>
+      <p class="spec-note">原则：<b>震动只做「确认」，永远不做「打扰」</b>。所有提醒型震动都推迟到下一个捕捉动作的开头。</p>
+    </div>
+
+    <div class="panel">
+      <div style="font-size:12px; letter-spacing:.2em; color:var(--ink-3); margin-bottom: 16px;">图 4 · 边界与容错</div>
+      <table class="spec">
+        <tr><th>场景</th><th>设计</th></tr>
+        <tr><td>误触（&lt;300 ms）</td><td>直接忽略、无反馈，用户不会察觉</td></tr>
+        <tr><td>语音不清 / 环境嘈杂</td><td>卡片标记「待确认」，原始音频永远保留</td></tr>
+        
+        
+        
+        
+      </table>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div style="font-size:12px; letter-spacing:.2em; color:var(--ink-3); margin-bottom: 8px;">图 5 · 戒指端状态机</div>
+    <div class="sm-wrap">
+      <svg viewBox="0 0 780 300" aria-label="戒指状态机：待机、捕捉中、已缓冲、处理中、已入库">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#9DB4CB"/>
+          </marker>
+        </defs>
+        <g><rect class="sm-state" x="30" y="40" width="128" height="64" rx="12"/><text class="sm-txt" x="94" y="68" text-anchor="middle">待机</text><text class="sm-sub" x="94" y="88" text-anchor="middle">佩戴检测中</text></g>
+        <g><rect class="sm-state on" x="230" y="40" width="150" height="64" rx="12" stroke-width="1.5"/><text class="sm-txt" x="305" y="68" text-anchor="middle">捕捉中</text><text class="sm-sub" x="305" y="88" text-anchor="middle">录音 + 实时缓冲</text></g>
+        <g><rect class="sm-state" x="452" y="40" width="150" height="64" rx="12"/><text class="sm-txt" x="527" y="68" text-anchor="middle">已缓冲</text><text class="sm-sub" x="527" y="88" text-anchor="middle">音频已落盘</text></g>
+        <g><rect class="sm-state" x="452" y="180" width="150" height="64" rx="12"/><text class="sm-txt" x="527" y="208" text-anchor="middle">处理中</text><text class="sm-sub" x="527" y="228" text-anchor="middle">AI 整理 → Idea Card</text></g>
+        <g><rect class="sm-state" x="220" y="180" width="150" height="64" rx="12" stroke="var(--ok)" stroke-width="1.5"/><text class="sm-txt" x="295" y="208" text-anchor="middle">已入库</text><text class="sm-sub" x="295" y="228" text-anchor="middle">灵感库可见</text></g>
+        <path class="sm-edge" d="M158 72 H 226"/>
+        <text class="sm-elbl" x="192" y="62" text-anchor="middle">第一次轻捏</text>
+        <path class="sm-edge" d="M380 72 H 448"/>
+        <text class="sm-elbl" x="414" y="62" text-anchor="middle">再次轻捏</text>
+        <path class="sm-edge" d="M602 72 Q 660 110 612 168"/>
+        <text class="sm-elbl" x="668" y="125" text-anchor="middle">蓝牙已连接</text>
+        <path class="sm-edge" d="M452 212 H 376"/>
+        <text class="sm-elbl" x="414" y="202" text-anchor="middle">卡片生成</text>
+        <path class="sm-edge" d="M220 212 H 96 V 108"/>
+        <text class="sm-elbl" x="150" y="248">等待下一条灵感</text>
+        <path class="sm-edge err" d="M305 104 V 176"/>
+        <text class="sm-elbl err" x="312" y="145">失败 → 保留音频，卡片标「待确认」</text>
+      </svg>
+    </div>
+    <p class="spec-note">摘下戒指 → 全状态回到「待机」；缓冲区在蓝牙回连后自动重传。状态机的每个对外跃迁都对应一次震动或一张卡片——用户永远不需要猜「它到底录上没有」。</p>
+  </div>
+</div></section>
+<section class="section" id="flow" style="background:var(--card); border-top:1px solid var(--line); border-bottom:1px solid var(--line);"><style>
+.principles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 26px; }
+.principle { border-left: 3px solid var(--blue); padding: 12px 18px; background: var(--paper); border-radius: 0 12px 12px 0; }
+.principle b { display: block; font-size: 15px; margin-bottom: 2px; }
+.principle span { font-size: 13px; color: var(--ink-3); }
+.tl-bar { position: relative; height: 4px; background: var(--line); border-radius: 2px; margin: 34px 8px 44px; }
+.tl-bar .fill { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--blue); border-radius: 2px; transition: width 6s linear; }
+.tl-steps { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+@media (max-width: 900px) { .tl-steps { grid-template-columns: repeat(4, 1fr); } }
+.tl-step { position: relative; padding-top: 6px; }
+.tl-step .dot { position: absolute; top: -44px; left: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--card); border: 2px solid #B9CFE2; }
+.tl-step.hot .dot { background: var(--blue); border-color: var(--blue); }
+.tl-step .tt { font-family: var(--mono); font-size: 11px; color: var(--blue); }
+.tl-step .tx { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+.tl-step .tx b { color: var(--ink); }
+.flow-wrap { overflow-x: auto; padding: 8px 2px; }
+.flow-wrap svg { min-width: 820px; width: 100%; display: block; }
+.fl-node { fill: var(--card); stroke: var(--line-2); }
+.fl-node.hw { stroke: var(--gold); }
+.fl-node.ai { stroke: var(--mac-purple-tx); }
+.fl-t { fill: var(--ink); font-size: 13.5px; font-family: var(--sans); font-weight: 600; }
+.fl-s { fill: var(--ink-3); font-size: 10.5px; font-family: var(--sans); }
+.fl-e { stroke: #9DB4CB; stroke-width: 1.4; fill: none; marker-end: url(#arrow2); }
+.fl-lane { fill: none; stroke: var(--line-2); stroke-width: 1; stroke-dasharray: 3 5; }
+.fl-lane-t { fill: var(--ink-3); font-size: 11px; font-family: var(--sans); letter-spacing: .2em; }
+</style>
+<div class="wrap">
+  <div class="eyebrow">02 · 用户流程</div>
+  <h2>Capture → Organize → Explore</h2>
+  <p class="lede">主流程只保留用户真正能感知的步骤：先在戒指上完成无屏捕捉，之后打开 App 回顾 AI 整理后的想法；需要继续发展时，再主动进入 Explore。</p>
+
+  <div class="principles">
+    <div class="principle"><b>Capture</b><span>Pinch → Recording，不看屏幕</span></div>
+    <div class="principle"><b>Organize</b><span>AI 整理语音，但保留原始表达</span></div>
+    <div class="principle"><b>Explore</b><span>用户主动继续延展；高相关时提示旧灵感</span></div>
+  </div>
+
+  <div class="panel" style="margin-top:22px;">
+    <div style="font-size:12px; letter-spacing:.2em; color:var(--ink-3); margin-bottom:18px;">完整用户流程</div>
+    <div class="flow-wrap">
+      <svg viewBox="0 0 900 170" role="img" aria-label="Avenlo 用户流程">
+        <defs><marker id="arrow2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#9DB4CB"/></marker></defs>
+        <rect class="fl-node hw" x="20" y="46" rx="14" width="150" height="72"/><text class="fl-t" x="95" y="76" text-anchor="middle">Pinch</text><text class="fl-s" x="95" y="97" text-anchor="middle">自然手势触发</text>
+        <path class="fl-e" d="M170 82H222"/>
+        <rect class="fl-node hw" x="225" y="46" rx="14" width="150" height="72"/><text class="fl-t" x="300" y="76" text-anchor="middle">Recording</text><text class="fl-s" x="300" y="97" text-anchor="middle">语音捕捉 · 震动确认</text>
+        <path class="fl-e" d="M375 82H427"/>
+        <rect class="fl-node ai" x="430" y="46" rx="14" width="150" height="72"/><text class="fl-t" x="505" y="76" text-anchor="middle">AI Organize</text><text class="fl-s" x="505" y="97" text-anchor="middle">整理为清晰想法</text>
+        <path class="fl-e" d="M580 82H632"/>
+        <rect class="fl-node" x="635" y="46" rx="14" width="120" height="72"/><text class="fl-t" x="695" y="76" text-anchor="middle">Idea Card</text><text class="fl-s" x="695" y="97" text-anchor="middle">回顾与查看原文</text>
+        <path class="fl-e" d="M755 82H787"/>
+        <rect class="fl-node ai" x="790" y="46" rx="14" width="90" height="72"/><text class="fl-t" x="835" y="76" text-anchor="middle">Explore</text><text class="fl-s" x="835" y="97" text-anchor="middle">主动延展</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-top:18px;">
+    <div class="panel">
+      <div style="font-size:12px; letter-spacing:.18em; color:var(--ink-3); margin-bottom:10px;">CAPTURE</div>
+      <p class="spec-note">用户只需要完成「轻捏 → 说话 → 再次轻捏」。正常情况下结束后只以震动确认，不要求立即查看手机。</p>
+    </div>
+    <div class="panel">
+      <div style="font-size:12px; letter-spacing:.18em; color:var(--ink-3); margin-bottom:10px;">ORGANIZE & EXPLORE</div>
+      <p class="spec-note">App 默认呈现 AI 整理后的内容，并保留 View original。Related Ideas 只在关联明显时出现；Explore 由用户主动进入。</p>
+    </div>
+  </div>
+</div></section>
+<section class="section" id="ui"><style>
+.screens { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 28px; }
+.screen-block { display: flex; flex-direction: column; gap: 12px; }
+.phone { width: 100%; max-width: 268px; margin: 0 auto; aspect-ratio: 9/19.4;
+  background: #FFF; border: 1px solid var(--line-2); border-radius: 36px; padding: 8px;
+  box-shadow: 0 12px 32px rgba(60,50,30,.10); }
+.scr { width: 100%; height: 100%; border-radius: 28px; overflow: hidden;
+  background: #FDFCFA; color: var(--ink); display: flex; flex-direction: column;
+  font-size: 11px; position: relative; }
+.scr .sbar { display: flex; justify-content: space-between; padding: 8px 16px 2px; font-family: var(--mono); font-size: 9px; color: var(--ink-3); }
+.notch { width: 72px; height: 15px; background: #FFF; border: 1px solid var(--line); border-bottom: none; border-radius: 8px 8px 0 0; margin: 0 auto; }
+.scr .body { flex: 1; overflow: hidden; padding: 6px 14px 10px; display: flex; flex-direction: column; gap: 8px; }
+.scr h5 { font-size: 16px; font-weight: 700; }
+.scr .nav { display: flex; align-items: center; justify-content: space-between; }
+.scr .nav .plus { width: 22px; height: 22px; border-radius: 8px; background: var(--blue-soft); display: flex; align-items: center; justify-content: center; }
+.scr .sub { font-size: 9.5px; color: var(--ink-3); }
+/* 灵感列表（对齐海报图一） */
+.rowi { display: flex; align-items: center; gap: 10px; background: #FFF; border: 1px solid var(--line); border-radius: 14px; padding: 9px 11px; }
+.rowi .ic { width: 30px; height: 30px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; }
+.rowi .tx { flex: 1; min-width: 0; }
+.rowi .tx b { font-size: 12px; display: block; }
+.rowi .tx span { font-size: 9px; color: var(--ink-3); }
+.rowi .dur { font-family: var(--mono); font-size: 9px; color: var(--ink-3); }
+.ic.cyan { background: var(--mac-cyan-bg); } .ic.yellow { background: var(--mac-yellow-bg); }
+.ic.purple { background: var(--mac-purple-bg); } .ic.pink { background: var(--mac-pink-bg); }
+.summ { background: var(--blue-soft); border-radius: 14px; padding: 9px 12px; }
+.summ .lb { font-size: 8.5px; letter-spacing: .16em; color: var(--blue); display: block; margin-bottom: 3px; }
+.summ p { font-size: 10px; color: var(--ink-2); line-height: 1.6; }
+.summ p b { color: var(--ink); }
+/* tabbar with SVG icons */
+.tabbar { display: flex; justify-content: space-around; padding: 6px 6px 8px; border-top: 1px solid var(--line); background: #FFF; }
+.tabbar .t { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #B8B4AA; }
+.tabbar .t svg { width: 16px; height: 16px; }
+.tabbar .t span { font-size: 8.5px; }
+.tabbar .t.on { color: var(--blue); }
+.tabbar .t.on span { font-weight: 600; }
+/* 详情页（海报图一右侧） */
+.wavebar { background: #FFF; border: 1px solid var(--line); border-radius: 14px; padding: 9px 11px; }
+.wavebar .top { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.playbtn { width: 24px; height: 24px; border-radius: 50%; background: var(--blue); color: #FFF; display: flex; align-items: center; justify-content: center; flex: none; }
+.wavebar .bars { display: flex; gap: 2.5px; align-items: center; flex: 1; height: 22px; overflow: hidden; }
+.wavebar .bars i { width: 2.5px; background: #D9A98F; border-radius: 2px; }
+.wavebar .top .tm { font-family: var(--mono); font-size: 8.5px; color: var(--ink-3); }
+.tabs { display: flex; gap: 4px; }
+.tabs span { font-size: 10px; padding: 4px 9px; border-radius: 99px; color: var(--ink-2); white-space: nowrap; }
+.tabs span.on { background: var(--blue); color: #FFF; font-weight: 600; }
+.trans { background: #FFF; border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; font-size: 10px; color: var(--ink-2); line-height: 1.8; }
+.trans .lb { font-size: 8px; letter-spacing: .16em; color: var(--ink-3); display: block; margin-bottom: 4px; }
+/* 灵感延展页（海报图二） */
+.hero-img { border-radius: 14px; height: 84px; background: linear-gradient(135deg, #DCEDE6 0%, #F5EAC8 60%, #F7E0DA 100%); position: relative; overflow: hidden; }
+.hero-img .leaf { position: absolute; right: 14px; bottom: 0; width: 60px; height: 60px; border-radius: 50% 50% 0 0; background: radial-gradient(circle at 50% 100%, #FFF 0%, #DCEDE6 70%); box-shadow: -14px -6px 0 -8px #CBDFD5, -26px -14px 0 -10px #E6F0EA; }
+.blk { background: #FFF; border: 1px solid var(--line); border-radius: 14px; padding: 9px 12px; }
+.blk .hd { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; margin-bottom: 4px; }
+.blk .hd svg { width: 12px; height: 12px; }
+.blk p { font-size: 10px; color: var(--ink-2); line-height: 1.7; }
+.blk ul { list-style: none; }
+.blk ul li { font-size: 10px; color: var(--ink-2); line-height: 1.8; padding-left: 12px; position: relative; }
+.blk ul li::before { content: ""; position: absolute; left: 0; top: .62em; width: 5px; height: 5px; border-radius: 50%; background: var(--mac-cyan-bg); border: 1px solid var(--mac-cyan-tx); }
+.hashtags { font-size: 10px; color: var(--blue); line-height: 1.8; }
+.actionbar { display: flex; justify-content: space-around; padding: 7px 0 4px; border-top: 1px solid var(--line); background: #FFF; margin-top: auto; }
+.actionbar svg { width: 15px; height: 15px; color: var(--ink-2); }
+/* 捕捉中锁屏 */
+.scr.dark { background: #2B3140; color: #EDF0F6; }
+.scr.dark .sbar { color: #8B93A8; }
+.scr.dark .notch { background: #2B3140; border-color: #3A4155; }
+.live-banner { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); border-radius: 14px; padding: 10px 12px; }
+.live-banner .hd { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+.rec-dot { width: 7px; height: 7px; border-radius: 50%; background: #F0B45C; box-shadow: 0 0 8px #F0B45C; animation: blink 1.2s infinite; }
+.live-banner .hd b { font-size: 11px; color: #F0B45C; }
+.live-banner .hd span { font-family: var(--mono); font-size: 8px; color: #8B93A8; margin-left: auto; }
+.live-text { font-size: 11px; color: #D5DAE6; line-height: 1.85; min-height: 66px; }
+.live-text .cur { display: inline-block; width: 1.5px; height: .95em; background: #F0B45C; vertical-align: -.12em; animation: blink 1s steps(1) infinite; }
+.hint-lock { text-align: center; color: #8B93A8; font-size: 9.5px; margin-top: auto; padding: 8px 0; }
+/* 注解 */
+.anno { counter-reset: a; }
+.anno li { list-style: none; font-size: 13.5px; color: var(--ink-2); padding-left: 30px; position: relative; margin-bottom: 8px; line-height: 1.65; }
+.anno li::before { counter-increment: a; content: counter(a); position: absolute; left: 0; top: 3px; width: 20px; height: 20px; border-radius: 50%;
+  border: 1px solid var(--blue); color: var(--blue); font-family: var(--mono); font-size: 10.5px;
+  display: flex; align-items: center; justify-content: center; }
+.anno li b { color: var(--ink); }
+.screen-title { font-size: 12px; letter-spacing: .16em; color: var(--blue); margin-top: 4px; }
+</style>
+<div class="wrap">
+  <div class="eyebrow">03 · App 界面原型</div>
+  <h2>记录之后，再回到屏幕</h2>
+  <p class="lede">App 不参与当下的捕捉动作。它负责把语音整理成可读的 Idea，并在用户愿意继续思考时提供 Related Ideas 与 Explore。整体视觉继续沿用原方案的暖白底、柔和标签与轻量卡片。</p>
+
+  <div class="panel" style="margin-bottom:28px;">
+    <div style="font-size:12px; letter-spacing:.2em; color:var(--ink-3); margin-bottom:16px;">AI ORGANIZE · BEFORE / AFTER</div>
+    <div class="grid g2">
+      <div class="trans">
+        <span class="lb">ORIGINAL TRANSCRIPT</span>
+        我刚刚突然想到，就是那个灯，能不能不要一直亮着，然后人走过去的时候，它不是直接亮，而是像呼吸一样慢慢亮起来，可能会更有感觉。
+      </div>
+      <div class="summ">
+        <span class="lb">ORGANIZED IDEA</span>
+        <p><b>呼吸式灯光交互</b><br>灯不需要持续亮起。当人经过时，让灯光像呼吸一样逐渐变亮，使互动感觉更柔和、更自然。</p>
+        <div style="margin-top:8px;"><span class="tag cyan">#灯光</span><span class="tag yellow">#交互</span><span class="tag purple">#氛围</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="screens">
+    <div class="screen-block">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>●●●</span></div><div class="notch"></div>
+        <div class="body">
+          <div class="nav"><h5>我的灵感</h5><span class="sub">Avenlo</span></div>
+          <div style="background:#FFF;border:1px solid var(--line);border-radius:12px;padding:8px 10px;color:var(--ink-3);font-size:9.5px;">⌕ Search your ideas…</div>
+          <div class="rowi"><span class="ic cyan">✦</span><span class="tx"><b>呼吸式灯光交互</b><span>今天 14:32 · 让灯光逐渐亮起…</span></span></div>
+          <div class="rowi"><span class="ic yellow">✦</span><span class="tx"><b>半透明材料应用</b><span>今天 11:08 · 让内部结构成为设计语言…</span></span></div>
+          <div class="rowi"><span class="ic purple">✦</span><span class="tx"><b>城市公园的声音采集</b><span>昨天 · 记录不同时间的声景变化…</span></span></div>
+        </div>
+        <div class="tabbar"><div class="t on"><span>灵感</span></div><div class="t"><span>搜索</span></div><div class="t"><span>我的</span></div></div>
+      </div></div>
+      <div class="screen-title">屏 1 · Idea Feed + Search</div>
+      <ul class="anno"><li>首页以最近捕捉的灵感为主，顶部保留轻量搜索入口。</li><li>列表只展示标题、简短 preview、时间与少量标签，快速回顾即可。</li></ul>
+    </div>
+
+    <div class="screen-block">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>●●●</span></div><div class="notch"></div>
+        <div class="body">
+          <div class="nav"><h5>呼吸式灯光交互</h5><span class="sub">今天 14:32</span></div>
+          <div class="summ"><span class="lb">ORGANIZED IDEA</span><p>灯不需要持续亮起。当人经过时，让灯光像呼吸一样逐渐变亮，使互动感觉更柔和、更自然。</p><div style="margin-top:6px;"><span class="tag cyan">#灯光</span><span class="tag yellow">#交互</span></div></div>
+          <div class="trans"><span class="lb">VIEW ORIGINAL ▾</span>原始语音转写默认折叠，用户需要核对时再展开。</div>
+          <div class="blk"><div class="hd">Related Idea</div><p>与你 3 天前记录的「环境光不应该突然变化」有关。</p><div class="hashtags">See more related ideas →</div></div>
+          <div class="action-btn" style="margin-top:auto;"><span class="pri">Explore this idea</span></div>
+        </div>
+      </div></div>
+      <div class="screen-title">屏 2 · Idea Detail</div>
+      <ul class="anno"><li>默认先看 AI 整理结果；原始转写折叠保留，AI 不覆盖用户原话。</li><li>Related Ideas 只在关联足够明显时出现，不强行填充。</li></ul>
+    </div>
+
+    <div class="screen-block">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>●●●</span></div><div class="notch"></div>
+        <div class="body">
+          <div class="nav"><h5>Explore this idea</h5><span class="sub">呼吸式灯光交互</span></div>
+          <div class="blk"><div class="hd">不同的视角</div><p>除了“逐渐变亮”，还可以尝试让亮度变化跟随人的距离、速度或停留时间。</p></div>
+          <div class="blk"><div class="hd">可能的联想</div><p>把“呼吸”作为交互语言，也可以延伸到材质透光、声音反馈或空间节奏。</p></div>
+          <div class="blk"><div class="hd">下一步尝试</div><p>先做一个简单的亮度过渡原型，对比“瞬间点亮”和“2 秒渐亮”的体验差异。</p></div>
+        </div>
+      </div></div>
+      <div class="screen-title">屏 3 · Explore</div>
+      <ul class="anno"><li>Explore 不自动弹出，由用户主动进入。</li><li>展示重点是灵感延展，并给一个轻量的下一步尝试；当前展示网站使用预设内容。</li></ul>
+    </div>
+  </div>
+</div></section>
+<footer><div class="wrap" style="display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;">
+  <div>
+    Avenlo · Software Design Concept<br>
+    AI-powered smart ring · UI/UX showcase
+  </div>
+  <div style="font-size:12px; letter-spacing:.14em; text-align:right; color:var(--ink-2);">
+    PINCH TO CAPTURE<br>CAPTURE WITHOUT INTERRUPTION<br>STAY IN FLOW
+  </div>
+</div></footer>
+<script>/* ===== 演示：Pinch to Capture 模拟 ===== */
+(function () {
+  const ring = document.getElementById('demoRing');
+  const status = document.getElementById('demoStatus');
+  const hint = document.getElementById('demoHint');
+  const wave = document.getElementById('demoWave');
+  const speech = document.getElementById('demoSpeech');
+  const card = document.getElementById('ideaMini');
+  const scriptEls = Array.from(document.querySelectorAll('#demoScript li'));
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const PHRASE = '这里是不是可以换成半透明材料？';
+  let running = false, timers = [], typed = '';
+
+  for (let i = 0; i < 28; i++) {
+    const b = document.createElement('span');
+    b.style.setProperty('--h', (8 + Math.random() * 36) + 'px');
+    b.style.animationDelay = (i * 0.06) + 's';
+    wave.appendChild(b);
+  }
+
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+  function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+  function setStatus(text, cls) { status.textContent = text; status.className = 'demo-status' + (cls ? ' ' + cls : ''); }
+  function step(name, done) {
+    scriptEls.forEach(li => {
+      const isMe = li.dataset.step === name;
+      if (isMe) li.classList.add('on');
+      else if (done) li.classList.remove('on');
+      if (done && isMe) { li.classList.remove('on'); li.classList.add('done'); }
+    });
+  }
+  function resetScript() { scriptEls.forEach(li => li.classList.remove('on', 'done')); }
+
+  function haptic() {
+    for (let i = 0; i < 2; i++) {
+      const p = document.createElement('div');
+      p.className = 'pulse go';
+      p.style.animationDelay = (i * 0.35) + 's';
+      ring.appendChild(p);
+      later(() => p.remove(), 2200 + i * 350);
+    }
+  }
+
+  function run() {
+    if (running) return;
+    running = true;
+    clearTimers(); resetScript();
+    card.classList.remove('show');
+    typed = ''; speech.innerHTML = '';
+    hint.style.opacity = '0';
+    wave.classList.remove('on');
+    Array.from(wave.children).forEach(b => b.style.height = '5px');
+
+    step('pinch');
+    setStatus('轻捏检测中…');
+    later(haptic, 200);
+    later(() => { step('haptic'); setStatus('正在捕捉 · 单次轻震', 'rec'); }, 450);
+    later(() => {
+      step('speak'); wave.classList.add('on');
+      Array.from(wave.children).forEach(b => b.style.height = '');
+      const speed = reduceMotion ? 10 : 95;
+      PHRASE.split('').forEach((ch, i) => {
+        later(() => {
+          typed += ch;
+          speech.innerHTML = '「' + typed + '<span class="cur"></span>';
+          const wb = wave.children[Math.min(i, 27)];
+          if (wb) wb.style.setProperty('--h', (10 + Math.random() * 34) + 'px');
+        }, i * speed);
+      });
+    }, 900);
+    later(() => {
+      step('end'); wave.classList.remove('on');
+      Array.from(wave.children).forEach(b => b.style.height = '5px');
+      setStatus('已存下 · 双震动确认', 'done');
+      speech.innerHTML = '「' + PHRASE + '」';
+      haptic();
+    }, 900 + PHRASE.length * (reduceMotion ? 10 : 95) + 700);
+    later(() => {
+      step('ai'); setStatus('AI 正在整理…', 'proc');
+      speech.innerHTML = '';
+    }, 900 + PHRASE.length * (reduceMotion ? 10 : 95) + 2100);
+    later(() => {
+      step('ai', true);
+      setStatus('Idea Card 已整理完成', 'done');
+      card.classList.add('show');
+      hint.style.opacity = '1';
+      hint.innerHTML = '已整理为 Idea Card · 再来一次？';
+      running = false;
+    }, 900 + PHRASE.length * (reduceMotion ? 10 : 95) + 3900);
+  }
+
+  ring.addEventListener('click', run);
+  ring.addEventListener('keydown', e => {
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); run(); }
+  });
+
+  const io = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) { run(); io.disconnect(); }
+  }, { threshold: 0.5 });
+  io.observe(ring);
+
+  /* 屏 4 · 锁屏实时转写（仅当页面存在该元素时启用） */
+  const live = document.getElementById('liveText');
+  if (live) {
+    const LIVE_PHRASE = '半透明材料，就是能看到里面结构的那种感觉…';
+    let li = 0, liveBase = '这里是不是可以换成';
+    function tickLive() {
+      if (li < LIVE_PHRASE.length) {
+        li++;
+        live.innerHTML = liveBase + LIVE_PHRASE.slice(0, li) + '<span class="cur"></span>';
+        setTimeout(tickLive, 220);
+      } else {
+        setTimeout(() => { li = 0; tickLive(); }, 3200);
+      }
+    }
+    tickLive();
+  }
+
+  /* 流程 A · 时间轴填充 */
+  const fill = document.getElementById('tlFill');
+  if (fill) {
+    const tlIo = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) { fill.style.width = '100%'; tlIo.disconnect(); }
+    }, { threshold: 0.4 });
+    tlIo.observe(fill);
+  }
+})();</script>
+</body>
+</html>
