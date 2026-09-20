@@ -281,7 +281,104 @@ footer { border-top: 1px solid var(--line-2); padding: 40px 0 64px; color: var(-
   border: 1px solid var(--blue); color: var(--blue); font-family: var(--mono); font-size: 10.5px;
   display: flex; align-items: center; justify-content: center; }
 .anno li b { color: var(--ink); }
-.screen-title { font-size: 12px; letter-spacing: .16em; color: var(--blue); margin-top: 4px; }</style>
+.screen-title { font-size: 12px; letter-spacing: .16em; color: var(--blue); margin-top: 4px; }
+
+.arch-panel-note { color: var(--ink-2); font-size: 14px; margin-bottom: 18px; }
+.arch-pipeline {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+  align-items: stretch;
+}
+.arch-step {
+  position: relative;
+  background: linear-gradient(180deg, #fff 0%, #FCFAF6 100%);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 18px 16px 16px;
+  min-height: 138px;
+}
+.arch-step:not(:last-child)::after {
+  content: "→";
+  position: absolute;
+  right: -11px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--paper);
+  border: 1px solid var(--line-2);
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 700;
+  z-index: 2;
+}
+.arch-step .kicker {
+  font-size: 11px; letter-spacing: .18em; color: var(--ink-3); text-transform: uppercase;
+  display: block; margin-bottom: 8px;
+}
+.arch-step h4 {
+  font-size: 17px; line-height: 1.45; margin-bottom: 6px; color: var(--ink);
+}
+.arch-step p {
+  font-size: 13.5px; line-height: 1.65; color: var(--ink-2);
+}
+.arch-roles {
+  display: grid;
+  gap: 12px;
+  margin-top: 2px;
+}
+.arch-role-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) 72px minmax(240px, .95fr);
+  gap: 14px;
+  align-items: center;
+}
+.arch-target, .arch-owner {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+.arch-target b, .arch-owner b { display: block; color: var(--ink); font-size: 14.5px; margin-bottom: 2px; }
+.arch-target span, .arch-owner span { color: var(--ink-2); font-size: 13px; line-height: 1.6; display: block; }
+.arch-linkline {
+  height: 0;
+  border-top: 2px dotted var(--line-2);
+}
+.arch-owner {
+  background: var(--blue-soft);
+  border-color: #EADACF;
+}
+.arch-owner .who {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--blue);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+.arch-caption {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+@media (max-width: 900px) {
+  .arch-pipeline { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 680px) {
+  .arch-pipeline { grid-template-columns: 1fr; }
+  .arch-step:not(:last-child)::after {
+    content: "↓";
+    right: auto; left: 50%; top: auto; bottom: -11px; transform: translateX(-50%);
+  }
+  .arch-role-row { grid-template-columns: 1fr; gap: 10px; }
+  .arch-linkline { width: 0; height: 26px; margin: 0 auto; border-top: none; border-left: 2px dotted var(--line-2); }
+}
+
+</style>
 </head>
 <body>
 <header id="hero"><style>
@@ -319,7 +416,8 @@ footer { border-top: 1px solid var(--line-2); padding: 40px 0 64px; color: var(-
     <a href="#demo"><span class="no">00</span><span class="t">体验核心交互</span><span class="d">Pinch to Capture</span></a>
     <a href="#pinch"><span class="no">01</span><span class="t">Pinch to Capture</span><span class="d">轻捏 · 录音 · 震动反馈</span></a>
     <a href="#flow"><span class="no">02</span><span class="t">用户流程</span><span class="d">Capture → Organize → Explore</span></a>
-    <a href="#ui"><span class="no">03</span><span class="t">App 界面原型</span><span class="d">AI Organize · Related Ideas · Explore</span></a>
+    <a href="#ui"><span class="no">03</span><span class="t">App 界面原型</span><span class="d">对齐概念海报</span></a>
+      <a href="#handoff"><span class="no">04</span><span class="t">对接与验证</span><span class="d">接口 · 用研 · 24h Demo</span></a>
   </nav>
 </div></header>
 <section class="section" id="demo" style="background:var(--card); border-top:1px solid var(--line); border-bottom:1px solid var(--line);"><style>
@@ -665,69 +763,246 @@ footer { border-top: 1px solid var(--line-2); padding: 40px 0 64px; color: var(-
 </style>
 <div class="wrap">
   <div class="eyebrow">03 · App 界面原型</div>
-  <h2>记录之后，再回到屏幕</h2>
-  <p class="lede">App 不参与当下的捕捉动作。它负责把语音整理成可读的 Idea，并在用户愿意继续思考时提供 Related Ideas 与 Explore。整体视觉继续沿用原方案的暖白底、柔和标签与轻量卡片。</p>
+  <h2>App：让灵感持续生长</h2>
+  <p class="lede">App 端做三件事：<b>让灵感不再丢失</b>（列表 + 详情），<b>让灵感互相认识</b>（相关想法 + 灵感集），<b>帮灵感迈出第一步</b>（延展思路 + 参考资源）。界面风格与概念海报一致——暖白底、马卡龙标签、陶土棕主色。五屏覆盖预赛演示所需的最小界面集。</p>
 
-  <div class="panel" style="margin-bottom:28px;">
-    <div style="font-size:12px; letter-spacing:.2em; color:var(--ink-3); margin-bottom:16px;">AI ORGANIZE · BEFORE / AFTER</div>
-    <div class="grid g2">
-      <div class="trans">
-        <span class="lb">ORIGINAL TRANSCRIPT</span>
-        我刚刚突然想到，就是那个灯，能不能不要一直亮着，然后人走过去的时候，它不是直接亮，而是像呼吸一样慢慢亮起来，可能会更有感觉。
-      </div>
-      <div class="summ">
-        <span class="lb">ORGANIZED IDEA</span>
-        <p><b>呼吸式灯光交互</b><br>灯不需要持续亮起。当人经过时，让灯光像呼吸一样逐渐变亮，使互动感觉更柔和、更自然。</p>
-        <div style="margin-top:8px;"><span class="tag cyan">#灯光</span><span class="tag yellow">#交互</span><span class="tag purple">#氛围</span></div>
-      </div>
+  <div class="screens">
+    <!-- SCR.1 我的灵感 -->
+    <div class="screen-block">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>●●●</span></div><div class="notch"></div>
+        <div class="body">
+          <div class="nav"><h5>我的灵感</h5><span class="plus"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="#BE693F" stroke-width="1.6" stroke-linecap="round"/></svg></span></div>
+          <div class="summ"><span class="lb">今日 · AI 摘要</span><p>今天捕捉了 <b>3 条灵感</b>，其中 1 条与<b>上周的旅行笔记</b>自动关联，已归入「旅行中的灵感」。</p></div>
+          <div class="tabs" style="padding:0;"><span class="on">全部</span><span>笔记</span><span>想法</span><span>灵感集</span></div>
+          <div class="rowi"><span class="ic cyan"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l3.5-4.5 2.5 3 3-4L14 12H2z" fill="#3E7265"/><circle cx="5" cy="5" r="1.6" fill="#3E7265"/></svg></span><span class="tx"><b>城市公园的声音采集</b><span>今天 14:07 · 灵感 · 城市观察</span></span><span class="dur">01:24</span></div>
+          <div class="rowi"><span class="ic yellow"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 13.5L10 3l3 2-7 10.5H3z" fill="#8A6D2F"/></svg></span><span class="tx"><b>半透明材料应用</b><span>今天 14:32 · 已延展</span></span><span class="dur">00:08</span></div>
+          <div class="rowi"><span class="ic purple"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="4" height="12" rx="1" fill="#6B5CA5"/><rect x="9" y="2" width="4" height="12" rx="1" fill="#6B5CA5" opacity=".55"/></svg></span><span class="tx"><b>旅行中的灵感</b><span>灵感集 · 12 条 · 持续更新</span></span><span class="dur">集</span></div>
+          <div class="rowi"><span class="ic pink"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 3c3-1 7-1 10 0v9c-3-1-7-1-10 0V3z" fill="#A5645C"/></svg></span><span class="tx"><b>读书笔记 · 光与暗</b><span>8月25日 · 笔记</span></span><span class="dur">12:03</span></div>
+        </div>
+        <div class="tabbar">
+          <span class="t on"><svg viewBox="0 0 20 20" fill="none"><path d="M4 4h12v12H4z" stroke="currentColor" stroke-width="1.4" rx="2"/><path d="M7 8h6M7 11h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span>灵感</span></span>
+          <span class="t"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.4"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span>时间线</span></span>
+          <span class="t"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="13" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M10 2v4M7 4l3 2 3-2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>戒指</span></span>
+        </div>
+      </div></div>
+      <div class="screen-title">屏 1 · 我的灵感</div>
+      <ul class="anno">
+        <li><b>今日 AI 摘要讲关联故事</b>：「与上周的旅行笔记自动关联」——差异化能力前置到首屏。</li>
+        <li>分类 Tab 对齐队长新稿：<b>全部 / 笔记 / 想法 / 灵感集</b>；灵感集是聚合主题，与单条灵感区分。</li>
+        <li>列表结构沿用概念海报（彩色图标+标题+元信息），「已延展」状态直接标在副行。</li>
+      </ul>
+    </div>
+
+    <!-- SCR.2 详情·相关想法 -->
+    <div class="screen-block">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>●●●</span></div><div class="notch"></div>
+        <div class="body">
+          <div class="nav"><h5>城市公园的声音采集</h5><span class="sub">今天 14:07 · 01:24</span></div>
+          <div class="wavebar">
+            <div class="top"><span class="playbtn"><svg width="9" height="9" viewBox="0 0 10 10"><path d="M2 1l7 4-7 4z" fill="#fff"/></svg></span>
+              <span class="bars"><i style="height:8px"></i><i style="height:15px"></i><i style="height:6px"></i><i style="height:19px"></i><i style="height:11px"></i><i style="height:17px"></i><i style="height:7px"></i><i style="height:13px"></i><i style="height:18px"></i><i style="height:9px"></i><i style="height:14px"></i><i style="height:5px"></i><i style="height:16px"></i><i style="height:10px"></i><i style="height:8px"></i><i style="height:12px"></i><i style="height:15px"></i><i style="height:7px"></i></span>
+              <span class="tm">0:47</span></div>
+            <div class="tabs"><span>总结</span><span class="on">相关想法</span><span>延展思路</span><span>参考资源</span></div>
+          </div>
+          <div class="trans"><span class="lb">AI 找到的联系</span>这条灵感与你 3 天前录下的想法有关——当时你说「想把旅行中的碎片灵感做成一个主题」。</div>
+          <div class="rowi" style="border:1px solid var(--line);"><span class="ic purple"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="4" height="12" rx="1" fill="#6B5CA5"/><rect x="9" y="2" width="4" height="12" rx="1" fill="#6B5CA5" opacity=".55"/></svg></span><span class="tx"><b>旅行中的灵感</b><span>9月13日 · 已归入同一灵感集</span></span><span class="dur">06:12</span></div>
+          <div class="rowi" style="border:1px solid var(--line);"><span class="ic cyan"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l3.5-4.5 2.5 3 3-4L14 12H2z" fill="#3E7265"/><circle cx="5" cy="5" r="1.6" fill="#3E7265"/></svg></span><span class="tx"><b>山谷的光线很柔和</b><span>8月27日 · 采风灵感</span></span><span class="dur">02:38</span></div>
+          <div style="font-size:10px; color:var(--ink-3); text-align:center;">关联有误？<span style="color:var(--blue);">不是同一条</span> · 反馈帮助 AI 更懂你</div>
+        </div>
+      </div></div>
+      <div class="screen-title">屏 2 · 详情（相关想法 Tab）</div>
+      <ul class="anno">
+        <li>四 Tab 对齐队长新稿：<b>总结 / 相关想法 / 延展思路 / 参考资源</b>。</li>
+        <li><b>相关想法是本产品的灵魂面板</b>：AI 关联旧灵感，可回听原始录音——「惊喜感」的落点。</li>
+        <li>关联可纠错（「不是同一条」），误判不破坏信任。</li>
+      </ul>
+    </div>
+
+    <!-- SCR.3 延展思路 -->
+    <div class="screen-block">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>●●●</span></div><div class="notch"></div>
+        <div class="body">
+          <div class="nav"><h5>AI 为你拓展思路</h5><span class="sub">城市公园的声音采集 · 延展</span></div>
+          <div class="blk">
+            <div class="hd"><svg viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4" stroke="#BE693F" stroke-width="1.4"/><path d="M9 9l3 3" stroke="#BE693F" stroke-width="1.6" stroke-linecap="round"/></svg>不同的视角</div>
+            <p>从时间、地点、情绪等角度思考：清晨 vs 黄昏的公园声景有何不同？雨天会不会是另一种采集时机？</p>
+          </div>
+          <div class="blk">
+            <div class="hd"><svg viewBox="0 0 14 14" fill="none"><rect x="2" y="3" width="10" height="8" rx="1.5" stroke="#6B5CA5" stroke-width="1.4"/><path d="M2 6h10" stroke="#6B5CA5" stroke-width="1.2"/></svg>相关的参考</div>
+            <p>· 城市声景地图项目案例<br>· 「环境声音采样」设备评测<br>· 3 款便携录音器材对比</p>
+          </div>
+          <div class="blk">
+            <div class="hd"><svg viewBox="0 0 14 14" fill="none"><path d="M7 1a3.5 3.5 0 00-3 5.2V9l3 1.5L10 9V6.2A3.5 3.5 0 007 1z" fill="#C08A3E"/></svg>延伸的方向</div>
+            <p>还有哪些可能性可以探索？把采集到的声音做成可交互的「城市声音明信片」？</p>
+          </div>
+          <div style="display:flex; gap:6px; margin-top:auto;"><span class="tag cyan">#声音</span><span class="tag yellow">#城市观察</span><span class="tag purple">#采集</span></div>
+          <div class="action-btn" style="margin:0;"><span class="pri">加入灵感集</span><span class="sec">分享</span></div>
+        </div>
+      </div></div>
+      <div class="screen-title">屏 3 · 延展思路</div>
+      <ul class="anno">
+        <li>延展三维度对齐队长新稿：<b>不同的视角 / 相关的参考 / 延伸的方向</b>——从一句话灵感长出可执行的分支。</li>
+        <li>「相关的参考」把外部案例、文章、工具直接送到位，对应「帮念头迈出第一步」。</li>
+        <li>行动入口：<b>加入灵感集 / 分享</b>，与列表页的灵感集概念闭环。</li>
+      </ul>
+    </div>
+
+    <!-- SCR.4 灵感集 -->
+    <div class="screen-block">
+      <div class="phone"><div class="scr">
+        <div class="sbar"><span>9:41</span><span>●●●</span></div><div class="notch"></div>
+        <div class="body">
+          <div class="nav"><h5>旅行中的灵感</h5><span class="sub">12 条相关想法 · 持续更新</span></div>
+          <div class="hero-img"><span class="leaf"></span></div>
+          <div class="trans" style="border:none; padding:0; background:none;"><span class="lb">灵感集 · AI 主题摘要</span>在旅途中收集细碎的灵感，它们总会在某个时刻串联起来。最近新增：城市公园的声音采集、山谷的光线。</div>
+          <div class="rowi"><span class="ic cyan"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l3.5-4.5 2.5 3 3-4L14 12H2z" fill="#3E7265"/><circle cx="5" cy="5" r="1.6" fill="#3E7265"/></svg></span><span class="tx"><b>城市公园的声音采集</b><span>今天 14:07 · 新关联</span></span><span class="dur">01:24</span></div>
+          <div class="rowi"><span class="ic cyan"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12l3.5-4.5 2.5 3 3-4L14 12H2z" fill="#3E7265"/><circle cx="5" cy="5" r="1.6" fill="#3E7265"/></svg></span><span class="tx"><b>山谷的光线很柔和</b><span>8月27日 · 采风</span></span><span class="dur">02:38</span></div>
+          <div class="rowi"><span class="ic yellow"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 13.5L10 3l3 2-7 10.5H3z" fill="#8A6D2F"/></svg></span><span class="tx"><b>把碎片做成主题</b><span>9月13日 · 集合起点</span></span><span class="dur">00:52</span></div>
+        </div>
+      </div></div>
+      <div class="screen-title">屏 4 · 灵感集（新增）</div>
+      <ul class="anno">
+        <li><b>灵感集是 Avenlo 的独有概念</b>：AI 自动聚合相关想法成主题，产品从「单次录音工具」升级为「个人灵感档案与思考延展系统」。</li>
+        <li>「12 条 · 持续更新」——灵感是活的，会随新捕捉自动生长。</li>
+      </ul>
+    </div>
+
+    <!-- SCR.5 捕捉中 -->
+    <div class="screen-block">
+      <div class="phone"><div class="scr dark">
+        <div class="sbar"><span>9:41</span><span>●●●</span></div><div class="notch"></div>
+        <div class="body">
+          <div class="live-banner">
+            <div class="hd"><span class="rec-dot"></span><b>Avenlo 正在捕捉</b><span>LIVE · 8s</span></div>
+            <div class="live-text" id="liveText">这里是不是可以换成<span class="cur"></span></div>
+          </div>
+          <div class="live-banner" style="background:rgba(255,255,255,.03);">
+            <div class="hd"><b style="color:#D5DAE6;">结束方式</b></div>
+            <p style="font-size:10px; color:#8B93A8; line-height:1.7;">再次轻捏戒指，或安静 3 秒后自动结束。结束后无需任何操作，卡片稍后自动出现在「我的灵感」。</p>
+          </div>
+          <div class="hint-lock">锁屏状态下同样工作 · 无需解锁手机</div>
+        </div>
+      </div></div>
+      <div class="screen-title">屏 5 · 捕捉中（锁屏）</div>
+      <ul class="anno">
+        <li>手机<b>不解锁也能看</b>：实时转写以常驻通知滚动，纯粹是「安心感」设计。</li>
+        <li>正在创作的人<b>根本不会看它</b>——它存在的意义是 Demo 时让观众看见链路在跑。</li>
+        <li>唯一深色屏，与暖白浏览层形成「捕捉 vs 回顾」的节奏对比。</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+<section class="section" id="handoff" style="background:var(--card); border-top:1px solid var(--line);"><div class="wrap">
+  <div class="eyebrow">04 · 对接与验证</div>
+  <h2>对接与验证</h2>
+  <p class="lede">交互设计不是画完就结束——这里定义与 Full Stack 的数据接口、给用户研究的验证问题，以及 24 小时黑客松现场的可执行 Demo 方案。</p>
+
+  <div class="grid g2" style="margin-bottom: 20px;">
+    <div class="panel">
+      <div style="font-size:12px; letter-spacing:.2em; color:var(--ink-3); margin-bottom: 14px;">给少政 · 触发事件与卡片数据结构</div>
+<pre class="code"><span class="c">// Ring (Plan A/B) 或模拟器 (Plan C) 上报</span>
+{
+  <span class="k">"type"</span>: <span class="s">"capture_end"</span>,       <span class="c">// pinch_start / capture_end / undo</span>
+  <span class="k">"ts"</span>: 1726382400123,
+  <span class="k">"audio"</span>: <span class="s">"blob://..."</span>,          <span class="c">// 8–60s 片段</span>
+  <span class="k">"gestures"</span>: [ { <span class="k">"t"</span>: 0, <span class="k">"ev"</span>: <span class="s">"pinch"</span> },
+               { <span class="k">"t"</span>: 8400, <span class="k">"ev"</span>: <span class="s">"pinch"</span> } ]
+}
+
+<span class="c">// AI Pipeline 输出 → App 渲染的 Idea Card（V2.1 新增关联/灵感集字段）</span>
+{
+  <span class="k">"id"</span>: <span class="s">"idea_01h..."</span>,
+  <span class="k">"title"</span>: <span class="s">"城市公园的声音采集"</span>,
+  <span class="k">"summary"</span>: <span class="s">"探索城市声景的采集方案…"</span>,
+  <span class="k">"transcript"</span>: <span class="s">"这片山谷的光线很柔和…"</span>,
+  <span class="k">"tags"</span>: [<span class="s">"声音"</span>, <span class="s">"城市观察"</span>],
+  <span class="k">"status"</span>: <span class="s">"ok"</span>,               <span class="c">// ok / needs_review / queued</span>
+  <span class="k">"related"</span>: [                    <span class="c">// 第三层：关联的旧灵感</span>
+    { <span class="k">"id"</span>: <span class="s">"idea_01g..."</span>, <span class="k">"title"</span>: <span class="s">"旅行中的灵感"</span>, <span class="k">"relation"</span>: <span class="s">"same_collection"</span> } ],
+  <span class="k">"extension"</span>: {                  <span class="c">// 第四层：延展三维度</span>
+    <span class="k">"perspectives"</span>: [<span class="s">"清晨 vs 黄昏的公园声景…"</span>],
+    <span class="k">"references"</span>:   [<span class="s">"城市声景地图项目案例"</span>],
+    <span class="k">"directions"</span>:   [<span class="s">"城市声音明信片？"</span>] },
+  <span class="k">"collection_id"</span>: <span class="s">"col_02f..."</span>,  <span class="c">// 归属的灵感集</span>
+  <span class="k">"audio_url"</span>: <span class="s">"..."</span>,
+  <span class="k">"created_at"</span>: <span class="s">"2026-09-15T14:32:00+08:00"</span>
+}</pre>
+      <p class="spec-note">状态机的五个状态与 <code style="font-family:var(--mono);font-size:12.5px;color:var(--blue)">status</code> 字段一一对应，前端按状态渲染「整理中 / 待确认」。</p>
+    </div>
+
+    <div class="panel">
+      <div style="font-size:12px; letter-spacing:.2em; color:var(--ink-3); margin-bottom: 16px;">给 Z · 用户访谈验证问题（对应 Checkpoint ①②）</div>
+      <table class="spec">
+        <tr><th>#</th><th>验证问题</th><th>判定标准</th></tr>
+        <tr><td>Q1</td><td>不看屏幕，能否盲操作完成 Pinch？</td><td>首次成功率 ≥ 80%</td></tr>
+        <tr><td>Q2</td><td>日常手部动作的误触率有多高？</td><td>自然使用 1 天 ≤ 2 次误触</td></tr>
+        <tr><td>Q3</td><td>单次轻震是否足以确认「已在录」？</td><td>主观确定感 ≥ 4/5</td></tr>
+        <tr><td>Q4</td><td>睡前 / 创作中是否愿意一直佩戴？</td><td>佩戴意愿 ≥ 3/5</td></tr>
+        <tr><td>Q5</td><td>「Apple Watch 不就行了吗？」</td><td>抬腕 vs 轻捏的打断感对比访谈</td></tr>
+      </table>
+      <p class="spec-note">Q1–Q3 决定交互参数是否调整（300ms 阈值 / 震动模式），Q4–Q5 输出给 Pitch Story。</p>
     </div>
   </div>
 
-  <div class="screens">
-    <div class="screen-block">
-      <div class="phone"><div class="scr">
-        <div class="sbar"><span>9:41</span><span>●●●</span></div><div class="notch"></div>
-        <div class="body">
-          <div class="nav"><h5>我的灵感</h5><span class="sub">Avenlo</span></div>
-          <div style="background:#FFF;border:1px solid var(--line);border-radius:12px;padding:8px 10px;color:var(--ink-3);font-size:9.5px;">⌕ Search your ideas…</div>
-          <div class="rowi"><span class="ic cyan">✦</span><span class="tx"><b>呼吸式灯光交互</b><span>今天 14:32 · 让灯光逐渐亮起…</span></span></div>
-          <div class="rowi"><span class="ic yellow">✦</span><span class="tx"><b>半透明材料应用</b><span>今天 11:08 · 让内部结构成为设计语言…</span></span></div>
-          <div class="rowi"><span class="ic purple">✦</span><span class="tx"><b>城市公园的声音采集</b><span>昨天 · 记录不同时间的声景变化…</span></span></div>
-        </div>
-        <div class="tabbar"><div class="t on"><span>灵感</span></div><div class="t"><span>搜索</span></div><div class="t"><span>我的</span></div></div>
-      </div></div>
-      <div class="screen-title">屏 1 · Idea Feed + Search</div>
-      <ul class="anno"><li>首页以最近捕捉的灵感为主，顶部保留轻量搜索入口。</li><li>列表只展示标题、简短 preview、时间与少量标签，快速回顾即可。</li></ul>
+  <div class="panel">
+    <div style="font-size:12px; letter-spacing:.2em; color:var(--ink-3); margin-bottom: 16px;">产品架构图（替换原 24 小时 Demo 方案）</div>
+    <p class="arch-panel-note">保持原 Demo 范围不变，用更直观的产品架构图展示 <b>Pinch → Capture → Organize → App Experience</b> 的链路，并用点线标注每位成员的分工。</p>
+
+    <div class="arch-pipeline">
+      <div class="arch-step">
+        <span class="kicker">01 · Interaction</span>
+        <h4>Pinch Trigger<br>Ring Feedback</h4>
+        <p>食指佩戴，拇指轻捏触发；开始 / 结束录音时以不同震动模式确认状态。</p>
+      </div>
+      <div class="arch-step">
+        <span class="kicker">02 · Capture</span>
+        <h4>Voice Capture</h4>
+        <p>以低打断方式记录即时想法，为后续转写与整理提供原始语音输入。</p>
+      </div>
+      <div class="arch-step">
+        <span class="kicker">03 · AI Layer</span>
+        <h4>AI Organize</h4>
+        <p>语音转文字后进行轻整理，输出标题、整理后的想法与少量标签。</p>
+      </div>
+      <div class="arch-step">
+        <span class="kicker">04 · App Experience</span>
+        <h4>Idea Card · Related Ideas · Explore</h4>
+        <p>在 App 中呈现整理结果，并延伸到关联灵感与后续探索页面。</p>
+      </div>
     </div>
 
-    <div class="screen-block">
-      <div class="phone"><div class="scr">
-        <div class="sbar"><span>9:41</span><span>●●●</span></div><div class="notch"></div>
-        <div class="body">
-          <div class="nav"><h5>呼吸式灯光交互</h5><span class="sub">今天 14:32</span></div>
-          <div class="summ"><span class="lb">ORGANIZED IDEA</span><p>灯不需要持续亮起。当人经过时，让灯光像呼吸一样逐渐变亮，使互动感觉更柔和、更自然。</p><div style="margin-top:6px;"><span class="tag cyan">#灯光</span><span class="tag yellow">#交互</span></div></div>
-          <div class="trans"><span class="lb">VIEW ORIGINAL ▾</span>原始语音转写默认折叠，用户需要核对时再展开。</div>
-          <div class="blk"><div class="hd">Related Idea</div><p>与你 3 天前记录的「环境光不应该突然变化」有关。</p><div class="hashtags">See more related ideas →</div></div>
-          <div class="action-btn" style="margin-top:auto;"><span class="pri">Explore this idea</span></div>
-        </div>
-      </div></div>
-      <div class="screen-title">屏 2 · Idea Detail</div>
-      <ul class="anno"><li>默认先看 AI 整理结果；原始转写折叠保留，AI 不覆盖用户原话。</li><li>Related Ideas 只在关联足够明显时出现，不强行填充。</li></ul>
+    <div class="arch-roles">
+      <div class="arch-role-row">
+        <div class="arch-target"><b>整体体验逻辑</b><span>信息结构 / 用户流程 / 页面叙事 / 核心文案</span></div>
+        <div class="arch-linkline"></div>
+        <div class="arch-owner"><span class="who">Owner</span><b>wmx（队长）</b><span>产品设计 · 文案</span></div>
+      </div>
+      <div class="arch-role-row">
+        <div class="arch-target"><b>交互触发 + AI 链路</b><span>Pinch 触发、录音采集、Voice → STT → AI → Card 的数据流</span></div>
+        <div class="arch-linkline"></div>
+        <div class="arch-owner"><span class="who">Owner</span><b>少政</b><span>交互实现 · 技术链路</span></div>
+      </div>
+      <div class="arch-role-row">
+        <div class="arch-target"><b>App 原型 + 戒指视觉</b><span>App 屏 1–4 高保真原型、Idea Card 细节、戒指外观与展示图</span></div>
+        <div class="arch-linkline"></div>
+        <div class="arch-owner"><span class="who">Owner</span><b>阿颖</b><span>UI / 视觉设计</span></div>
+      </div>
+      <div class="arch-role-row">
+        <div class="arch-target"><b>用户研究与验证</b><span>访谈问题、验证反馈、Apple Watch 对比与可佩戴性判断</span></div>
+        <div class="arch-linkline"></div>
+        <div class="arch-owner"><span class="who">Owner</span><b>全组</b><span>用户研究 · 验证整理</span></div>
+      </div>
+      <div class="arch-role-row">
+        <div class="arch-target"><b>现场演示整合</b><span>30 秒 Demo 串讲、物料整合、Q&amp;A 说明与收尾呈现</span></div>
+        <div class="arch-linkline"></div>
+        <div class="arch-owner"><span class="who">Owner</span><b>全组</b><span>Demo 演示 · Pitch 配合</span></div>
+      </div>
     </div>
 
-    <div class="screen-block">
-      <div class="phone"><div class="scr">
-        <div class="sbar"><span>9:41</span><span>●●●</span></div><div class="notch"></div>
-        <div class="body">
-          <div class="nav"><h5>Explore this idea</h5><span class="sub">呼吸式灯光交互</span></div>
-          <div class="blk"><div class="hd">不同的视角</div><p>除了“逐渐变亮”，还可以尝试让亮度变化跟随人的距离、速度或停留时间。</p></div>
-          <div class="blk"><div class="hd">可能的联想</div><p>把“呼吸”作为交互语言，也可以延伸到材质透光、声音反馈或空间节奏。</p></div>
-          <div class="blk"><div class="hd">下一步尝试</div><p>先做一个简单的亮度过渡原型，对比“瞬间点亮”和“2 秒渐亮”的体验差异。</p></div>
-        </div>
-      </div></div>
-      <div class="screen-title">屏 3 · Explore</div>
-      <ul class="anno"><li>Explore 不自动弹出，由用户主动进入。</li><li>展示重点是灵感延展，并给一个轻量的下一步尝试；当前展示网站使用预设内容。</li></ul>
-    </div>
+    <p class="arch-caption">保留原方案的核心原则：<b>先保证完整体验可展示，再逐步提高硬件完成度</b>。这一版仅将执行表改为架构图表达，其余 03–04 内容保持不变。</p>
   </div>
 </div></section>
 <footer><div class="wrap" style="display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;">
